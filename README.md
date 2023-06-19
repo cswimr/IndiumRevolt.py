@@ -1,11 +1,11 @@
 # IndiumRevolt.py
 
 IndiumRevolt.py aims to recreate functionality of other popular bots from Discord, but on Revolt.
-The bot is not currently available to invite, but you can selfhost it below!
+The bot is not currently available to invite, but there are instructions on how to selfhost the bot below!
 
 ## Selfhosting
 
-If you're self-hosting IndiumRevolt.py, please make it clear that it is not the main instance (or change the name) but give credit by linking to this repo (for example, in the bot's profile - something like ``This bot <is based on/is an instance of> [IndiumRevolt.py](https://github.com/SeaswimmerTheFsh/IndiumRevolt.py)`` will suffice).
+If you're self-hosting IndiumRevolt.py, please make it clear that it is not the main instance (or change the name) but give credit by linking to this repository in the bot's profile (something like ``This bot is an instance of [IndiumRevolt.py](https://github.com/SeaswimmerTheFsh/IndiumRevolt.py)`` will suffice).
 
 * Clone this repository (`git clone https://github.com/SeaswimmerTheFsh/IndiumRevolt.py.git`)
 * Install Revolt.py and dotenv
