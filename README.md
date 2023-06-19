@@ -1,7 +1,7 @@
 # IndiumRevolt.py
 
 IndiumRevolt.py aims to recreate functionality of other popular bots from Discord, but on Revolt.
-You can invite the bot [here](https://app.revolt.chat/bot/01H3ANCNT182REPP90AY03NBMM).
+The bot is not currently available to invite, but you can selfhost it below!
 
 ## Selfhosting
 
