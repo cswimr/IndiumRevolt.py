@@ -1,4 +1,4 @@
-# Imports
+# pylint: disable=missing-module-docstring
 import asyncio
 import os
 from dotenv import load_dotenv
