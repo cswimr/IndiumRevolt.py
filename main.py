@@ -1,10 +1,10 @@
+import time
 import asyncio
 import os
-from dotenv import load_dotenv
 import aiohttp
 import revolt
 from revolt.ext import commands
-import time
+from dotenv import load_dotenv
 
 load_dotenv()
 token = os.getenv('TOKEN')
