@@ -8,10 +8,11 @@ from revolt.ext import commands
 load_dotenv()
 token = os.getenv('TOKEN')
 api_url = os.getenv('API_URL')
+prefix = os.getenv('PREFIX')
 
 class Client(commands.CommandsClient):
     async def get_prefix(self, message: revolt.Message):
-        return "."
+        return prefix
     
     @commands.command()
     async def ping(self, ctx: commands.Context):
