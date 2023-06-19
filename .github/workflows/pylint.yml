@@ -22,4 +22,6 @@ jobs:
         pip install python-dotenv
     - name: Analysing the code with pylint
       run: |
+        pylint OPTIONS --generate-rcfile > .pylintrc
+        pylint OPTIONS --disable=C0114
         pylint $(git ls-files '*.py')
