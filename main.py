@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import aiohttp
 import revolt
 from revolt.ext import commands
+import time
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -17,8 +18,15 @@ class Client(commands.CommandsClient):
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
-        # This command checks if the bot is running.
-        await ctx.send("Pong!")
+        # This command checks the bot's latency.
+        before = time.monotonic()
+        await ctx.send("🏓")
+        mrm_list = await ctx.channel.history(limit=1)
+        mrm = mrm_list[0]
+        ping = (time.monotonic() - before) * 1000
+        embeds = [revolt.SendableEmbed(title="🏓 Pong!", description=f"`\n{int(ping)} ms`", colour="#5d82d1")]
+        await mrm.edit(content=None, embeds=embeds)
+        print(f'Ping {int(ping)}ms')
 
     @commands.command()
     async def avatar(self, ctx: commands.Context, member: revolt.Member):
