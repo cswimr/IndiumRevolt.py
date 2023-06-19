@@ -17,12 +17,12 @@ class Client(commands.CommandsClient):
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
-        # Checks if the bot is running.
+        # This command checks if the bot is running.
         await ctx.send("Pong!")
 
     @commands.command()
     async def avatar(self, ctx: commands.Context, member: revolt.Member):
-        # Checks a user's avatar.
+        # This command retrieves a user's avatar.
         if not isinstance(member, revolt.Member):
             await ctx.send("Please provide a member argument!")
             return
