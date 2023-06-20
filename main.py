@@ -7,6 +7,7 @@ from revolt.ext import commands
 import dotenv
 from dotenv import load_dotenv
 
+# This code reads the variables set in the bot's '.env' file.
 env = dotenv.find_dotenv()
 load_dotenv(env)
 token = os.getenv('TOKEN')
@@ -14,7 +15,7 @@ api_url = os.getenv('API_URL')
 prefix = os.getenv('PREFIX')
 
 class Client(commands.CommandsClient):
-    # This class contains all of the commands the bot uses.
+    # This class contains all of the commands/methods required for core functionality. Everything else will be relegated to cogs (eventually).
     async def get_prefix(self, message: revolt.Message, input: str | None = None): # pylint: disable=W0622
         if input is None:
             return prefix
@@ -50,7 +51,7 @@ class Client(commands.CommandsClient):
 
     @commands.command()
     async def avatar(self, ctx: commands.Context, target: revolt.User):
-        # This command retrieves a user's avatar. CURRENTLY BROKEN
+        # This command retrieves a user's avatar. CURRENTLY BROKEN - NOTE: Move to cog
         if not isinstance(target, revolt.User):
             await ctx.message.reply("Please provide a user argument!")
             return
