@@ -6,6 +6,7 @@ import revolt
 from revolt.ext import commands
 import dotenv
 from dotenv import load_dotenv
+from moderation import Moderation
 
 # This code reads the variables set in the bot's '.env' file.
 env = dotenv.find_dotenv()
@@ -77,6 +78,7 @@ async def main():
     # This function logs into the bot user.
     async with aiohttp.ClientSession() as session:
         client = Client(session, token, api_url=api_url)
+        client.add_cog(Moderation(client))
         await client.start()
 
 asyncio.run(main())
