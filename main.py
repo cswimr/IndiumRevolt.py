@@ -22,7 +22,7 @@ class Client(commands.CommandsClient):
     async def ping(self, ctx: commands.Context):
         # This command checks the bot's latency.
         before = time.monotonic()
-        await ctx.send("🏓")
+        await ctx.message.reply("🏓")
         mrm_list = await ctx.channel.history(limit=1)
         mrm = mrm_list[0]
         ping = (time.monotonic() - before) * 1000
