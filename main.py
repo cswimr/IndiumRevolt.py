@@ -15,7 +15,7 @@ prefix = os.getenv('PREFIX')
 
 class Client(commands.CommandsClient):
     # This class contains all of the commands the bot uses.
-    async def get_prefix(self, message: revolt.Message, input: str = prefix):
+    async def get_prefix(self, message: revolt.Message, input: str = prefix): # pylint: disable=W0622, E0601
         return input
 
     @commands.command()
