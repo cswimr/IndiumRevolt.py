@@ -19,7 +19,7 @@ class Client(commands.CommandsClient):
         if input is None:
             return prefix
         return input
-    
+
     async def on_message(self, message: revolt.Message):
         if 'PREFIX' not in os.environ or prefix is None:
             if message.author == self.user.owner:
@@ -68,7 +68,7 @@ class Client(commands.CommandsClient):
     @commands.is_bot_owner()
     async def prefix(self, ctx: commands.Context, new_prefix: str = None):
         # This command sets the bot's prefix. CURRENTLY PARTIALLY BROKEN
-        if new_prefix is not None and True(commands.is_bot_owner):
+        if new_prefix is not None and bool(commands.is_bot_owner):
             await Client.prefix_change(self=self, message=ctx.message, new_prefix=new_prefix)
         else:
             await ctx.message.reply(f"The prefix is currently set to `{prefix}`.")
