@@ -68,7 +68,7 @@ class Client(commands.CommandsClient):
     @commands.command()
     async def prefix(self, ctx: commands.Context, new_prefix: str = None):
         # This command sets the bot's prefix. CURRENTLY BROKEN
-        if new_prefix is not None and ctx.author.id == Client.user.owner_id:
+        if new_prefix is not None and ctx.author.id == ctx.client.user.owner_id:
             await Client.prefix_change(self=self, message=ctx.message, new_prefix=new_prefix)
         else:
             await ctx.message.reply(f"The prefix is currently set to `{prefix}`.")
