@@ -34,26 +34,26 @@ class Client(commands.CommandsClient):
     async def avatar(self, ctx: commands.Context, target: revolt.User):
         # This command retrieves a user's avatar. CURRENTLY BROKEN
         if not isinstance(target, revolt.User):
-            await ctx.send("Please provide a user argument!")
+            await ctx.message.reply("Please provide a user argument!")
             return
         avatar = target.avatar.url
-        await ctx.send(f"{avatar}")
+        await ctx.message.reply(f"{avatar}")
 
     @commands.command()
     @commands.is_bot_owner()
     async def prefix(self, ctx: commands.Context, new_prefix: str = None):
         # This command sets the bot's prefix. CURRENTLY BROKEN
         if 'PREFIX' not in os.environ:
-            await ctx.send("Something is very wrong! You have managed to run a prefix command without having a prefix set in your `.env` file!")
+            await ctx.message.reply("Something is very wrong! You have managed to run a prefix command without having a prefix set in your `.env` file!")
             print("ERROR: prefix_env_var check failed!")
             return
         if new_prefix is not None:
             dotenv.set_key(env, 'PREFIX', new_prefix)
-            await ctx.send(f"Prefix has been changed from `{prefix}` to `{new_prefix}`!")
+            await ctx.message.reply(f"Prefix has been changed from `{prefix}` to `{new_prefix}`!")
             print(f"Prefix changed: {prefix} → {new_prefix}")
             await Client.get_prefix(ctx.message, new_prefix)
         else:
-            await ctx.send(f"The prefix is currently set to `{prefix}`.")
+            await ctx.message.reply(f"The prefix is currently set to `{prefix}`.")
 
 async def main():
     # This function logs into the bot user.
