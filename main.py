@@ -15,8 +15,26 @@ prefix = os.getenv('PREFIX')
 
 class Client(commands.CommandsClient):
     # This class contains all of the commands the bot uses.
-    async def get_prefix(self, message: revolt.Message, input: str = prefix): # pylint: disable=W0622, E0601
+    async def get_prefix(self, message: revolt.Message, input: str | None = None):
+        if input is None:
+            return prefix
         return input
+    
+    async def on_message(self, message: revolt.Message):
+        if 'PREFIX' not in os.environ or prefix == None:
+            if message.author == self.user.owner:
+                await message.channel.send("You have started the bot without setting the `prefix` environment variable!\nIt has been set to `temp!` automatically, please change it using `temp!prefix <new prefix>`.")
+                print("ERROR: prefix_env_var check failed! Prefix set to 'temp!'.")
+                new_prefix = "temp!"
+                await Client.prefix_change(self=self, message=message, new_prefix=new_prefix, silent=True)
+            else:
+                print("ERROR: prefix_env_var check failed!")
+        else:
+            if isinstance(message.author, revolt.Member):
+                print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent from {message.server.name} ({message.server.id})")
+            else:
+                print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent in Direct Messages")
+        await Client.process_commands(self, message)
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
@@ -39,19 +57,19 @@ class Client(commands.CommandsClient):
         avatar = target.avatar.url
         await ctx.message.reply(f"{avatar}")
 
+    async def prefix_change(self, message: revolt.Message, new_prefix: str, silent: bool | None = False):
+            dotenv.set_key(env, 'PREFIX', new_prefix)
+            if silent is not True:
+                await message.reply(f"Prefix has been changed from `{prefix}` to `{new_prefix}`!")
+            print(f"Prefix changed: {prefix} → {new_prefix}")
+            await Client.get_prefix(message, new_prefix)
+
     @commands.command()
     @commands.is_bot_owner()
     async def prefix(self, ctx: commands.Context, new_prefix: str = None):
-        # This command sets the bot's prefix. CURRENTLY BROKEN
-        if 'PREFIX' not in os.environ:
-            await ctx.message.reply("Something is very wrong! You have managed to run a prefix command without having a prefix set in your `.env` file!")
-            print("ERROR: prefix_env_var check failed!")
-            return
-        if new_prefix is not None:
-            dotenv.set_key(env, 'PREFIX', new_prefix)
-            await ctx.message.reply(f"Prefix has been changed from `{prefix}` to `{new_prefix}`!")
-            print(f"Prefix changed: {prefix} → {new_prefix}")
-            await Client.get_prefix(ctx.message, new_prefix)
+        # This command sets the bot's prefix. CURRENTLY PARTIALLY BROKEN
+        if new_prefix is not None and commands.is_bot_owner == True:
+            await Client.prefix_change(self=self, message=ctx.message, new_prefix=new_prefix)
         else:
             await ctx.message.reply(f"The prefix is currently set to `{prefix}`.")
 
