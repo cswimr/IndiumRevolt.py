@@ -1,6 +1,6 @@
+from datetime import timedelta
 import revolt
 from revolt.ext import commands
-from datetime import timedelta
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -38,5 +38,5 @@ class Moderation(commands.Cog):
 
     @commands.command()
     async def timedeltaconvert(self, ctx, *, duration: str = "1 hour"):
-        parsed_time = Moderation.parse_timedelta(duration)
+        parsed_time = Moderation.parse_timedelta(self, duration)
         await ctx.send(str(parsed_time))
