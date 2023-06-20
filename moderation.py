@@ -11,7 +11,7 @@ class Moderation(commands.Cog):
         components = input_str.split()
 
         # Define a dictionary to map time units to their corresponding `timedelta` attribute
-        units = {"days": "days", "hours": "hours", "minutes": "minutes", "seconds": "seconds"}
+        units = {"days": "days", "hours": "hours", "minutes": "minutes", "seconds": "seconds", "day": "days", "hour": "hours", "minute": "minutes", "second": "seconds", "d": "days", "h": "hours", "m": "minutes", "s": "seconds"}
 
         # Iterate over the components, taking pairs of values and units
         values_units = zip(components[::2], components[1::2])
