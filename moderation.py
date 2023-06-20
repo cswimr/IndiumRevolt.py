@@ -1,6 +1,3 @@
-import asyncio
-import os
-import aiohttp
 import revolt
 from revolt.ext import commands
 from datetime import timedelta
@@ -9,7 +6,7 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def parse_timedelta(input_str):
+    def parse_timedelta(self, input_str):
         # Split the string into its components (e.g., "1 day 3 hours" becomes ["1", "day", "3", "hours"])
         components = input_str.split()
 
@@ -35,7 +32,7 @@ class Moderation(commands.Cog):
 
     @commands.command(name="mute", aliases="timeout")
     async def mute(self, ctx, target: revolt.Member, duration: str = "1 hour"):
-        parsed_time = Moderation.parse_timedelta(duration)
+        parsed_time = Moderation.parse_timedelta(self, duration)
         await target.timeout(parsed_time)
         await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!")
 
