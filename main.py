@@ -13,7 +13,7 @@ token = os.getenv('TOKEN')
 api_url = os.getenv('API_URL')
 prefix = os.getenv('PREFIX')
 
-class Client(commands.CommandsClient):
+class client(commands.CommandsClient):
     # This class contains all of the commands the bot uses.
     async def get_prefix(self, message: revolt.Message, input: str = prefix):
         return input
@@ -51,14 +51,14 @@ class Client(commands.CommandsClient):
             dotenv.set_key(env, 'PREFIX', new_prefix)
             await ctx.message.reply(f"Prefix has been changed from `{prefix}` to `{new_prefix}`!")
             print(f"Prefix changed: {prefix} → {new_prefix}")
-            await Client.get_prefix(ctx.message, new_prefix)
+            await client.get_prefix(ctx.message, new_prefix)
         else:
             await ctx.message.reply(f"The prefix is currently set to `{prefix}`.")
 
 async def main():
     # This function logs into the bot user.
     async with aiohttp.ClientSession() as session:
-        client = Client(session, token, api_url=api_url)
+        client = client(session, token, api_url=api_url)
         await client.start()
 
 asyncio.run(main())
