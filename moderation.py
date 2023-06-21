@@ -1,42 +1,62 @@
+import os
 from datetime import timedelta
+import dotenv
+import mysql.connector
 import revolt
+from dotenv import load_dotenv
+from pytimeparse2 import disable_dateutil, parse
 from revolt.ext import commands
+
+# This code reads the variables set in the bot's '.env' file.
+env = dotenv.find_dotenv()
+load_dotenv(env)
+prefix = os.getenv('PREFIX')
+db_host = os.getenv('DB_HOST')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db = os.getenv('DB')
+
+moddb = mysql.connector.connect(
+host=db_host,
+user=db_user,
+password=db_password,
+database=db
+)
+cursor = moddb.cursor()
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        disable_dateutil()
 
-    def parse_timedelta(self, input_str):
-        # Split the string into its components (e.g., "1 day 3 hours" becomes ["1", "day", "3", "hours"])
-        components = input_str.split()
-
-        # Define a dictionary to map time units to their corresponding `timedelta` attribute
-        units = {"days": "days", "hours": "hours", "minutes": "minutes", "seconds": "seconds", "day": "days", "hour": "hours", "minute": "minutes", "second": "seconds", "d": "days", "h": "hours", "m": "minutes", "s": "seconds"}
-
-        # Iterate over the components, taking pairs of values and units
-        values_units = zip(components[::2], components[1::2])
-
-        # Initialize a dictionary to store the values for each unit
-        values = {}
-
-        # Parse the values and units into the dictionary
-        for value, unit in values_units:
-            # Convert the value to an integer
-            value = int(value)
-            # Map the unit to the corresponding `timedelta` attribute and store the value
-            values[units[unit]] = value
-
-        # Create and return the `timedelta` object
-        return timedelta(**values)
-
-
-    @commands.command(name="mute", aliases="timeout")
-    async def mute(self, ctx, target: revolt.Member, duration: str = "1 hour"):
-        parsed_time = Moderation.parse_timedelta(self, duration)
+    @commands.command(name="mute", aliases=["timeout"])
+    async def mute(self, ctx: commands.Context, target: commands.MemberConverter, *, duration: str = "1 hour"):
+        try:
+            parsed_time = parse(duration, as_timedelta=True, raise_exception=True)
+        except ValueError:
+            await ctx.message.reply(f"Please provide a valid duration!\nSee `{prefix}tdc`")
+            return
         await target.timeout(parsed_time)
         await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!")
+        embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for {str(parsed_time)}.", colour="#5d82d1")]
+        await target.send(embeds=embeds)
+        # latest_id = cursor.execute("SELECT * FROM mod ORDER BY moderation_id DESC LIMIT 1;")
+        # sql = "INSERT INTO mod (moderation_id, moderation_type, target_id, duration, reason) VALUES (%s, %s, %s, %s, %s)"
+        # val = (latest_id, "Timeout", target.id, parsed_time, "Testing")
+        # cursor.execute(sql, val)
 
-    @commands.command()
-    async def timedeltaconvert(self, ctx, *, duration: str = "1 hour"):
-        parsed_time = Moderation.parse_timedelta(self, duration)
-        await ctx.send(str(parsed_time))
+        # moddb.commit()
+
+        # print(moddb.rowcount, "record inserted.")
+
+    @commands.command(aliases=["tdc"])
+    async def timedeltaconvert(self, ctx, *, duration):
+        if not duration:
+            embeds = [revolt.SendableEmbed(description=f"## timedeltaconvert\nThis command converts a duration to a `timedelta` Python object.\n### Example Usage\n`{prefix}timedeltaconvert 1 day 15hr 82 minutes 52 s`\n### Output\n`1 day, 16:22:52`", colour="#5d82d1")]
+            await ctx.message.reply(embeds=embeds)
+        else:
+            try:
+                parsed_time = parse(duration, as_timedelta=True, raise_exception=True)
+                await ctx.message.reply(f"`{str(parsed_time)}`")
+            except ValueError:
+                await ctx.message.reply("Please provide a convertible value!")

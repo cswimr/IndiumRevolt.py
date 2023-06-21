@@ -22,21 +22,21 @@ class Client(commands.CommandsClient):
             return prefix
         return input
 
-    async def on_message(self, message: revolt.Message):
-        if 'PREFIX' not in os.environ or prefix is None:
-            if message.author == self.user.owner:
-                await message.channel.send("You have started the bot without setting the `prefix` environment variable!\nIt has been set to `temp!` automatically, please change it using `temp!prefix <new prefix>`.")
-                print("ERROR: prefix_env_var check failed! Prefix set to 'temp!'.")
-                new_prefix = "temp!"
-                await Client.prefix_change(self=self, message=message, new_prefix=new_prefix, silent=True)
-            else:
-                print("ERROR: prefix_env_var check failed!")
-        else:
-            if isinstance(message.author, revolt.Member):
-                print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent from {message.server.name} ({message.server.id})")
-            else:
-                print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent in Direct Messages")
-        await Client.process_commands(self, message)
+    # async def on_message(self, message: revolt.Message):
+    #     if 'PREFIX' not in os.environ or prefix is None:
+    #         if message.author == self.user.owner:
+    #             await message.channel.send("You have started the bot without setting the `prefix` environment variable!\nIt has been set to `temp!` automatically, please change it using `temp!prefix <new prefix>`.")
+    #             print("ERROR: prefix_env_var check failed! Prefix set to 'temp!'.")
+    #             new_prefix = "temp!"
+    #             await Client.prefix_change(self=self, message=message, new_prefix=new_prefix, silent=True)
+    #         else:
+    #             print("ERROR: prefix_env_var check failed!")
+    #     else:
+    #         if isinstance(message.author, revolt.Member):
+    #             print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent from {message.server.name} ({message.server.id})")
+    #         else:
+    #             print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent in Direct Messages")
+    #     await Client.process_commands(self, message)
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
@@ -73,6 +73,12 @@ class Client(commands.CommandsClient):
             await Client.prefix_change(self=self, message=ctx.message, new_prefix=new_prefix)
         else:
             await ctx.message.reply(f"The prefix is currently set to `{prefix}`.")
+
+    @commands.command()
+    async def temptimeout(self, ctx: commands.Context):
+        target = Client.get_server(self, "01G9FHH3F20QHBERQ6FT3RT5Y2").get_member("01H37XQF4WMV6HRGYTA03YMSDZ")
+        duration = Moderation.parse_timedelta(self, "1 minute")
+        await target.timeout(duration)
 
 async def main():
     # This function logs into the bot user.
