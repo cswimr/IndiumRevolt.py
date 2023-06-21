@@ -20,20 +20,20 @@ class Moderation(commands.Cog):
         self.bot = bot
         disable_dateutil()
 
-    def mysql_connect():
+    def mysql_connect(self):
         connection = mysql.connector.connect(host=db_host,user=db_user,password=db_password,database=db)
         return connection
 
     def mysql_log(self, ctx: commands.Context,moderation_type, target_id, duration, reason):
-        mysql = Moderation.mysql_connect()
-        cursor = mysql.cursor()
+        database = Moderation.mysql_connect(self)
+        cursor = database.cursor()
         cursor.execute(f"SELECT moderation_id FROM `{ctx.server.id.lower()}_moderation` ORDER BY moderation_id DESC LIMIT 1")
         moderation_id = cursor.fetchone()[0] + 1
         sql = f"INSERT INTO `{ctx.server.id.lower()}_moderation` (moderation_id, moderation_type, target_id, duration, reason, resolved) VALUES (%s, %s, %s, %s, %s, %s)"
         val = (moderation_id, moderation_type, target_id, duration, f"{reason}", 0)
         cursor.execute(sql, val)
-        mysql.commit()
-        mysql.close()
+        database.commit()
+        database.close()
         print(f"MySQL Row Inserted!\n{moderation_id}, {moderation_type}, {target_id}, {duration}, {reason}, 0")
 
     @commands.command(name="timeout", aliases=["mute"])
@@ -48,7 +48,7 @@ class Moderation(commands.Cog):
         try:
             embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for {str(parsed_time)} in {ctx.server.name}.\n### Reason\n`{reason}", colour="#5d82d1")]
             await target.send(embeds=embeds)
-        except:
+        except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
         Moderation.mysql_log(self, ctx, moderation_type='Timeout', target_id=target.id, duration=parsed_time, reason=reason)
 
@@ -61,7 +61,7 @@ class Moderation(commands.Cog):
         try:
             embeds = [revolt.SendableEmbed(title="Warned", description=f"You have been warned in {ctx.server.name}!\n### Reason\n`{reason}`", colour="#5d82d1")]
             await target.send(embeds=embeds)
-        except:
+        except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
         Moderation.mysql_log(self, ctx, moderation_type='Warning', target_id=target.id, duration='NULL', reason=reason)
 
@@ -76,7 +76,7 @@ class Moderation(commands.Cog):
             try:
                 embeds = [revolt.SendableEmbed(title="Banned", description=f"You have been banned from `{ctx.server.name}`.\n### Reason\n`{reason}`", colour="#5d82d1")]
                 await target.send(embeds=embeds)
-            except:
+            except revolt.errors.HTTPError:
                 await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
             Moderation.mysql_log(self, ctx, moderation_type='Ban', target_id=target.id, duration='NULL', reason=reason)
         except revolt.errors.HTTPError:
@@ -98,7 +98,7 @@ class Moderation(commands.Cog):
                 try:
                     embeds = [revolt.SendableEmbed(title="Unbanned", description=f"You have been unbanned from `{ctx.server.name}`.\n### Reason\n`{reason}`", colour="#5d82d1")]
                     await target.send(embeds=embeds)
-                except:
+                except revolt.errors.HTTPError:
                     await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
                 Moderation.mysql_log(self, ctx, moderation_type='Unban', target_id=target.id, duration='NULL', reason=str(reason))
                 return
