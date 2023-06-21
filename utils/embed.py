@@ -31,11 +31,11 @@ class CustomEmbed(revolt.SendableEmbed):
         super().__init__(*args, **kwargs)
         self.footer: str | None = None
 
-    def add_field(self, name = None, value = None, inline = None):
+    def add_field(self, name = None, value = None):
         if name is None and value is None:
             raise ValueError("A 'name' or 'value' must be given")
 
-        if self.description == None:
+        if self.description is None:
             self.description = ""
         else:
             self.description += "\n"
@@ -52,7 +52,7 @@ class CustomEmbed(revolt.SendableEmbed):
 
     def to_dict(self):
         if self.footer is not None:
-            if self.description == None:
+            if self.description is None:
                 self.description = ""
             else:
                 self.description += "\n\n"
