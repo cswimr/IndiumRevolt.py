@@ -36,6 +36,17 @@ class Moderation(commands.Cog):
         database.close()
         print(f"MySQL Row Inserted!\n{moderation_id}, {moderation_type}, {target_id}, {duration}, {reason}, 0")
 
+    def add_field(self, name = None, value = None):
+        if name is None and value is None:
+            raise ValueError("A 'name' or 'value' must be given")
+        self.description = "\n" if self.description else ""
+        if value is None:
+            self.description += f"### {name}"
+        elif name is None:
+            self.description += f"{value}"
+        else:
+            self.description += f"### {name}\n{value}"
+
     @commands.command(name="timeout", aliases=["mute"])
     async def timeout(self, ctx: commands.Context, target: commands.MemberConverter, duration: str, *, reason: str):
         try:
