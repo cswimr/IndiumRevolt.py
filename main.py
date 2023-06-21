@@ -6,7 +6,7 @@ import revolt
 from revolt.ext import commands
 import dotenv
 from dotenv import load_dotenv
-from moderation import Moderation
+from cogs.moderation import Moderation
 
 # This code reads the variables set in the bot's '.env' file.
 env = dotenv.find_dotenv()
