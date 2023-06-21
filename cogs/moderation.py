@@ -46,7 +46,7 @@ class Moderation(commands.Cog):
         await target.timeout(parsed_time)
         response = await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!\n**Reason** - `{reason}`")
         try:
-            embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for {str(parsed_time)} in {ctx.server.name}.\n### Reason\n`{reason}", colour="#5d82d1")]
+            embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for {str(parsed_time)} in {ctx.server.name}.\n### Reason\n`{reason}`", colour="#5d82d1")]
             await target.send(embeds=embeds)
         except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
