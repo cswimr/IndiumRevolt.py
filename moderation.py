@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 import dotenv
 import mysql.connector
 import revolt

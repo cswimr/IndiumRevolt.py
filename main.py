@@ -74,12 +74,6 @@ class Client(commands.CommandsClient):
         else:
             await ctx.message.reply(f"The prefix is currently set to `{prefix}`.")
 
-    @commands.command()
-    async def temptimeout(self, ctx: commands.Context):
-        target = Client.get_server(self, "01G9FHH3F20QHBERQ6FT3RT5Y2").get_member("01H37XQF4WMV6HRGYTA03YMSDZ")
-        duration = Moderation.parse_timedelta(self, "1 minute")
-        await target.timeout(duration)
-
 async def main():
     # This function logs into the bot user.
     async with aiohttp.ClientSession() as session:
