@@ -43,6 +43,9 @@ class Moderation(commands.Cog):
         except ValueError:
             await ctx.message.reply(f"Please provide a valid duration!\nSee `{prefix}tdc`")
             return
+        if not reason:
+            await ctx.message.reply("Please provide a reason!")
+            return
         await target.timeout(parsed_time)
         response = await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!\n**Reason** - `{reason}`")
         try:
@@ -51,6 +54,21 @@ class Moderation(commands.Cog):
         except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
         Moderation.mysql_log(self, ctx, moderation_type='Timeout', target_id=target.id, duration=parsed_time, reason=reason)
+
+    @commands.command(name="untimeout", aliases=["unmute"])
+    async def untimeout(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
+        if not reason:
+            await ctx.message.reply("Please include a reason!")
+            return
+        parsed_time = parse(sval="0s", as_timedelta=True, raise_exception=True)
+        await target.timeout(parsed_time)
+        response = await ctx.message.reply(f"{target.mention} has had their timeout removed!\n**Reason** - `{reason}`")
+        try:
+            embeds = [revolt.SendableEmbed(title="Untimed Out", description=f"You have been untimed out in {ctx.server.name}.\n### Reason\n`{reason}`", colour="#5d82d1")]
+            await target.send(embeds=embeds)
+        except revolt.errors.HTTPError:
+            await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
+        Moderation.mysql_log(self, ctx, moderation_type='Untimeout', target_id=target.id, duration=parsed_time, reason=reason)
 
     @commands.command()
     async def warn(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
