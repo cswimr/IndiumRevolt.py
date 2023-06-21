@@ -20,16 +20,20 @@ class Moderation(commands.Cog):
         self.bot = bot
         disable_dateutil()
 
-    def mysql_log(self, moderation_type, target_id, duration, reason):
-        moddb = mysql.connector.connect(host=db_host,user=db_user,password=db_password,database=db)
-        cursor = moddb.cursor()
-        cursor.execute("SELECT moderation_id FROM `mod` ORDER BY moderation_id DESC LIMIT 1")
+    def mysql_connect():
+        connection = mysql.connector.connect(host=db_host,user=db_user,password=db_password,database=db)
+        return connection
+
+    def mysql_log(self, ctx: commands.Context,moderation_type, target_id, duration, reason):
+        mysql = Moderation.mysql_connect()
+        cursor = mysql.cursor()
+        cursor.execute(f"SELECT moderation_id FROM `{ctx.server.id.lower()}_moderation` ORDER BY moderation_id DESC LIMIT 1")
         moderation_id = cursor.fetchone()[0] + 1
-        sql = "INSERT INTO `mod` (moderation_id, moderation_type, target_id, duration, reason, resolved) VALUES (%s, %s, %s, %s, %s, %s)"
-        val = (moderation_id, moderation_type, target_id, duration, reason, 0)
+        sql = f"INSERT INTO `{ctx.server.id.lower()}_moderation` (moderation_id, moderation_type, target_id, duration, reason, resolved) VALUES (%s, %s, %s, %s, %s, %s)"
+        val = (moderation_id, moderation_type, target_id, duration, f"{reason}", 0)
         cursor.execute(sql, val)
-        moddb.commit()
-        moddb.close()
+        mysql.commit()
+        mysql.close()
         print(f"MySQL Row Inserted!\n{moderation_id}, {moderation_type}, {target_id}, {duration}, {reason}, 0")
 
     @commands.command(name="timeout", aliases=["mute"])
@@ -39,21 +43,27 @@ class Moderation(commands.Cog):
         except ValueError:
             await ctx.message.reply(f"Please provide a valid duration!\nSee `{prefix}tdc`")
             return
-        # await target.timeout(parsed_time)
-        await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!\n**Reason** - `{reason}`")
-        # embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for {str(parsed_time)}.\n### Reason\n`{reason}", colour="#5d82d1")]
-        # await target.send(embeds=embeds)
-        Moderation.mysql_log(self, moderation_type='Timeout', target_id=target.id, duration=parsed_time, reason=reason)
+        await target.timeout(parsed_time)
+        response = await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!\n**Reason** - `{reason}`")
+        try:
+            embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for {str(parsed_time)} in {ctx.server.name}.\n### Reason\n`{reason}", colour="#5d82d1")]
+            await target.send(embeds=embeds)
+        except:
+            await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
+        Moderation.mysql_log(self, ctx, moderation_type='Timeout', target_id=target.id, duration=parsed_time, reason=reason)
 
     @commands.command()
     async def warn(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
         if not reason:
             await ctx.message.reply("Please include a reason!")
             return
-        await ctx.message.reply(f"{target.mention} has been warned!\n**Reason** - `{reason}`")
-        # embeds = [revolt.SendableEmbed(title="Warned", description=f"You have been warned.\n### Reason\n`{reason}", colour="#5d82d1")]
-        # await target.send(embeds=embeds)
-        Moderation.mysql_log(self, moderation_type='Warning', target_id=target.id, duration='NULL', reason=reason)
+        response = await ctx.message.reply(f"{target.mention} has been warned!\n**Reason** - `{reason}`")
+        try:
+            embeds = [revolt.SendableEmbed(title="Warned", description=f"You have been warned in {ctx.server.name}!\n### Reason\n`{reason}`", colour="#5d82d1")]
+            await target.send(embeds=embeds)
+        except:
+            await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
+        Moderation.mysql_log(self, ctx, moderation_type='Warning', target_id=target.id, duration='NULL', reason=reason)
 
     @commands.command()
     async def ban(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
@@ -61,25 +71,38 @@ class Moderation(commands.Cog):
             await ctx.message.reply("Please include a reason!")
             return
         try:
-            # embeds = [revolt.SendableEmbed(title="Banned", description=f"You have been banned.\n### Reason\n`{reason}", colour="#5d82d1")]
-            # await target.send(embeds=embeds)
             await target.ban(reason=reason)
-            await ctx.message.reply(f"{target.mention} has been banned!\n**Reason** - `{reason}`")
-            Moderation.mysql_log(self, moderation_type='Ban', target_id=target.id, duration='NULL', reason=reason)
+            response = await ctx.message.reply(f"{target.mention} has been banned!\n**Reason** - `{reason}`")
+            try:
+                embeds = [revolt.SendableEmbed(title="Banned", description=f"You have been banned from `{ctx.server.name}`.\n### Reason\n`{reason}`", colour="#5d82d1")]
+                await target.send(embeds=embeds)
+            except:
+                await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
+            Moderation.mysql_log(self, ctx, moderation_type='Ban', target_id=target.id, duration='NULL', reason=reason)
         except revolt.errors.HTTPError:
             await ctx.message.reply(f"{target.mention} is already banned!")
 
     @commands.command()
-    async def unban(self, ctx: commands.Context, target: commands.MemberConverter):
-        try:
-            await target.unban()
-            # embeds = [revolt.SendableEmbed(title="Unbanned", description="You have been unbanned.", colour="#5d82d1")]
-            # await target.send(embeds=embeds)
-            await ctx.message.reply(f"{target.mention} has been unbanned!")
-            Moderation.mysql_log(self, moderation_type='Unban', target_id=target.id, duration='NULL', reason=f'Unbanned through {prefix}unban')
-        except revolt.errors.HTTPError:
-            await ctx.message.reply(f"{target.mention} is not banned!")
+    async def unban(self, ctx: commands.Context, target: commands.UserConverter, *, reason: str):
+        if ctx.channel.channel_type is not revolt.ChannelType.text_channel:
+            await ctx.message.reply("You cannot use moderation commands in direct messages!")
             return
+        if not reason:
+            await ctx.message.reply("Please include a reason!")
+            return
+        bans = await ctx.server.fetch_bans()
+        for ban in bans:
+            if ban.user_id == target.id:
+                await ban.unban()
+                response = await ctx.message.reply(f"{target.mention} has been unbanned!\n**Reason** - `{reason}`")
+                try:
+                    embeds = [revolt.SendableEmbed(title="Unbanned", description=f"You have been unbanned from `{ctx.server.name}`.\n### Reason\n`{reason}`", colour="#5d82d1")]
+                    await target.send(embeds=embeds)
+                except:
+                    await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
+                Moderation.mysql_log(self, ctx, moderation_type='Unban', target_id=target.id, duration='NULL', reason=str(reason))
+                return
+        await ctx.message.reply(f"{target.mention} is not banned!")
 
 
     @commands.command(aliases=["tdc"])

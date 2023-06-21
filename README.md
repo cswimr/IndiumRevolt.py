@@ -9,7 +9,7 @@ If you're self-hosting IndiumRevolt.py, please make it clear that it is not the 
 
 * Clone this repository (`git clone https://github.com/SeaswimmerTheFsh/IndiumRevolt.py.git`)
 * Install Revolt.py and python-dotenv
-  * ``pip install revolt.py python-dotenv``
+  * ``pip install revolt.py pytimeparse2 python-dotenv``
 * Set up an `.env` file
   * Rename the `.env.example` file and fill out the values
 * Run the bot (`python main.py`)
