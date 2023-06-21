@@ -20,7 +20,7 @@ class Moderation(commands.Cog):
         self.bot = bot
         disable_dateutil()
 
-    def moddb_log(self, type, target_id, duration, reason):
+    def insert_to_moddb(self, type, target_id, duration, reason):
         moddb = mysql.connector.connect(host=db_host,user=db_user,password=db_password,database=db)
         cursor = moddb.cursor()
         cursor.execute("SELECT moderation_id FROM `mod` ORDER BY moderation_id DESC LIMIT 1")
@@ -43,7 +43,7 @@ class Moderation(commands.Cog):
         await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!\n**Reason** - `{reason}`")
         # embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for {str(parsed_time)}.\n### Reason\n`{reason}", colour="#5d82d1")]
         # await target.send(embeds=embeds)
-        Moderation.moddb_log(self, type='Timeout', target_id=target.id, duration=parsed_time, reason=reason)
+        Moderation.insert_to_moddb(self, type='Timeout', target_id=target.id, duration=parsed_time, reason=reason)
 
     @commands.command()
     async def warn(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
@@ -53,7 +53,7 @@ class Moderation(commands.Cog):
         await ctx.message.reply(f"{target.mention} has been warned!\n**Reason** - `{reason}`")
         # embeds = [revolt.SendableEmbed(title="Warned", description=f"You have been warned.\n### Reason\n`{reason}", colour="#5d82d1")]
         # await target.send(embeds=embeds)
-        Moderation.moddb_log(self, type='Warning', target_id=target.id, duration='NULL', reason=reason)
+        Moderation.insert_to_moddb(self, type='Warning', target_id=target.id, duration='NULL', reason=reason)
 
     @commands.command()
     async def ban(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
@@ -65,7 +65,7 @@ class Moderation(commands.Cog):
             # await target.send(embeds=embeds)
             await target.ban(reason=reason)
             await ctx.message.reply(f"{target.mention} has been banned!\n**Reason** - `{reason}`")
-            Moderation.moddb_log(self, type='Ban', target_id=target.id, duration='NULL', reason=reason)
+            Moderation.insert_to_moddb(self, type='Ban', target_id=target.id, duration='NULL', reason=reason)
         except revolt.errors.HTTPError:
             await ctx.message.reply(f"{target.mention} is already banned!")
 
@@ -76,7 +76,7 @@ class Moderation(commands.Cog):
             # embeds = [revolt.SendableEmbed(title="Unbanned", description="You have been unbanned.", colour="#5d82d1")]
             # await target.send(embeds=embeds)
             await ctx.message.reply(f"{target.mention} has been unbanned!")
-            Moderation.moddb_log(self, type='Unban', target_id=target.id, duration='NULL', reason=f'Unbanned through {prefix}unban')
+            Moderation.insert_to_moddb(self, type='Unban', target_id=target.id, duration='NULL', reason=f'Unbanned through {prefix}unban')
         except revolt.errors.HTTPError:
             await ctx.message.reply(f"{target.mention} is not banned!")
             return
