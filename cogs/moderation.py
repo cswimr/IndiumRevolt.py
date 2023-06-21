@@ -5,6 +5,7 @@ import revolt
 from dotenv import load_dotenv
 from pytimeparse2 import disable_dateutil, parse
 from revolt.ext import commands
+from utils.embed import CustomEmbed
 
 # This code reads the variables set in the bot's '.env' file.
 env = dotenv.find_dotenv()
@@ -49,7 +50,7 @@ class Moderation(commands.Cog):
         await target.timeout(parsed_time)
         response = await ctx.message.reply(f"{target.mention} has been timed out for {str(parsed_time)}!\n**Reason** - `{reason}`")
         try:
-            embeds = [revolt.SendableEmbed(title="Timed Out", description=f"You have been timed out for `{str(parsed_time)}` in {ctx.server.name}.\n### Reason\n`{reason}`", colour="#5d82d1")]
+            embeds = [CustomEmbed(title="Timed Out", description=f"You have been timed out for `{str(parsed_time)}` in {ctx.server.name}.\n### Reason\n`{reason}`", color="#5d82d1")]
             await target.send(embeds=embeds)
         except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
@@ -64,7 +65,7 @@ class Moderation(commands.Cog):
         await target.timeout(parsed_time)
         response = await ctx.message.reply(f"{target.mention} has had their timeout removed!\n**Reason** - `{reason}`")
         try:
-            embeds = [revolt.SendableEmbed(title="Timeout Removed", description=f"Your timeout has been removed in {ctx.server.name}.\n### Reason\n`{reason}`", colour="#5d82d1")]
+            embeds = [CustomEmbed(title="Timeout Removed", description=f"Your timeout has been removed in {ctx.server.name}.\n### Reason\n`{reason}`", color="#5d82d1")]
             await target.send(embeds=embeds)
         except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
@@ -77,7 +78,7 @@ class Moderation(commands.Cog):
             return
         response = await ctx.message.reply(f"{target.mention} has been warned!\n**Reason** - `{reason}`")
         try:
-            embeds = [revolt.SendableEmbed(title="Warned", description=f"You have been warned in {ctx.server.name}!\n### Reason\n`{reason}`", colour="#5d82d1")]
+            embeds = [CustomEmbed(title="Warned", description=f"You have been warned in {ctx.server.name}!\n### Reason\n`{reason}`", color="#5d82d1")]
             await target.send(embeds=embeds)
         except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
@@ -90,7 +91,7 @@ class Moderation(commands.Cog):
             return
         response = await ctx.message.reply(f"{target.mention} has been kicked!\n**Reason** - `{reason}`")
         try:
-            embeds = [revolt.SendableEmbed(title="Warned", description=f"You have been kicked from {ctx.server.name}!\n### Reason\n`{reason}`", colour="#5d82d1")]
+            embeds = [CustomEmbed(title="Warned", description=f"You have been kicked from {ctx.server.name}!\n### Reason\n`{reason}`", color="#5d82d1")]
             await target.send(embeds=embeds)
         except revolt.errors.HTTPError:
             await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
@@ -105,7 +106,7 @@ class Moderation(commands.Cog):
             await target.ban(reason=reason)
             response = await ctx.message.reply(f"{target.mention} has been banned!\n**Reason** - `{reason}`")
             try:
-                embeds = [revolt.SendableEmbed(title="Banned", description=f"You have been banned from `{ctx.server.name}`.\n### Reason\n`{reason}`", colour="#5d82d1")]
+                embeds = [CustomEmbed(title="Banned", description=f"You have been banned from `{ctx.server.name}`.\n### Reason\n`{reason}`", color="#5d82d1")]
                 await target.send(embeds=embeds)
             except revolt.errors.HTTPError:
                 await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
@@ -127,7 +128,7 @@ class Moderation(commands.Cog):
                 await ban.unban()
                 response = await ctx.message.reply(f"{target.mention} has been unbanned!\n**Reason** - `{reason}`")
                 try:
-                    embeds = [revolt.SendableEmbed(title="Unbanned", description=f"You have been unbanned from `{ctx.server.name}`.\n### Reason\n`{reason}`", colour="#5d82d1")]
+                    embeds = [CustomEmbed(title="Unbanned", description=f"You have been unbanned from `{ctx.server.name}`.\n### Reason\n`{reason}`", color="#5d82d1")]
                     await target.send(embeds=embeds)
                 except revolt.errors.HTTPError:
                     await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
@@ -139,7 +140,7 @@ class Moderation(commands.Cog):
     @commands.command(aliases=["tdc"])
     async def timedeltaconvert(self, ctx, *, duration):
         if not duration:
-            embeds = [revolt.SendableEmbed(description=f"## timedeltaconvert\nThis command converts a duration to a `timedelta` Python object.\n### Example Usage\n`{prefix}timedeltaconvert 1 day 15hr 82 minutes 52 s`\n### Output\n`1 day, 16:22:52`", colour="#5d82d1")]
+            embeds = [CustomEmbed(description=f"## timedeltaconvert\nThis command converts a duration to a `timedelta` Python object.\n### Example Usage\n`{prefix}timedeltaconvert 1 day 15hr 82 minutes 52 s`\n### Output\n`1 day, 16:22:52`", color="#5d82d1")]
             await ctx.message.reply(embeds=embeds)
         else:
             try:

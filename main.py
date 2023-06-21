@@ -1,12 +1,13 @@
-import time
 import asyncio
 import os
+import time
 import aiohttp
-import revolt
-from revolt.ext import commands
 import dotenv
+import revolt
 from dotenv import load_dotenv
+from revolt.ext import commands
 from cogs.moderation import Moderation
+from utils.embed import CustomEmbed
 
 # This code reads the variables set in the bot's '.env' file.
 env = dotenv.find_dotenv()
@@ -37,7 +38,7 @@ class Client(commands.CommandsClient):
         mrm_list = await ctx.channel.history(limit=1)
         mrm = mrm_list[0]
         ping = (time.monotonic() - before) * 1000
-        embeds = [revolt.SendableEmbed(title="🏓 Pong!", description=f"`\n{int(ping)} ms`", colour="#5d82d1")]
+        embeds = [CustomEmbed(title="🏓 Pong!", description=f"`\n{int(ping)} ms`", colour="#5d82d1")]
         await mrm.edit(content=" ", embeds=embeds)
         print(f'Ping {int(ping)}ms')
 
