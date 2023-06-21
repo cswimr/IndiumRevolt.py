@@ -66,6 +66,19 @@ class Moderation(commands.Cog):
         Moderation.mysql_log(self, ctx, moderation_type='Warning', target_id=target.id, duration='NULL', reason=reason)
 
     @commands.command()
+    async def kick(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
+        if not reason:
+            await ctx.message.reply("Please include a reason!")
+            return
+        response = await ctx.message.reply(f"{target.mention} has been kicked!\n**Reason** - `{reason}`")
+        try:
+            embeds = [revolt.SendableEmbed(title="Warned", description=f"You have been kicked from {ctx.server.name}!\n### Reason\n`{reason}`", colour="#5d82d1")]
+            await target.send(embeds=embeds)
+        except revolt.errors.HTTPError:
+            await response.edit(content=f"{response.content}\n*Failed to send DM, user likely has the bot blocked.*")
+        Moderation.mysql_log(self, ctx, moderation_type='Kick', target_id=target.id, duration='NULL', reason=reason)
+
+    @commands.command()
     async def ban(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
         if not reason:
             await ctx.message.reply("Please include a reason!")
