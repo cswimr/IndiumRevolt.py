@@ -7,6 +7,7 @@ import revolt
 from dotenv import load_dotenv
 from revolt.ext import commands
 from cogs.moderation import Moderation
+from cogs.info import Info
 from utils.embed import CustomEmbed
 
 # This code reads the variables set in the bot's '.env' file.
@@ -71,6 +72,7 @@ async def main():
     async with aiohttp.ClientSession() as session:
         client = Client(session, token, api_url=api_url)
         client.add_cog(Moderation(client))
+        client.add_cog(Info(client))
         await client.start()
 
 asyncio.run(main())
