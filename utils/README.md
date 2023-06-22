@@ -1,3 +1,11 @@
 # Embed
 
-This code was given to me by `MystciMia#9718` on the [Revolt.py Revolt Server](https://rvlt.gg/hBWWYqmk).
+This module contains a `CustomEmbed` class that adds the following functionality to Embeds:
+
+* Field emulation `CustomEmbed.add_field`
+* Support for the `color` kwarg
+* Footer emulation `CustomEmbed.set_footer`
+* Copy function `CustomEmbed.copy`
+* Dictionary conversion `CustomEmbed.to_dict`
+
+This code was given to me by `MysticMia#9718` on the [Revolt.py Revolt Server](https://rvlt.gg/hBWWYqmk).
