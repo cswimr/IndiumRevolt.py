@@ -2,8 +2,8 @@
 
 This module contains a `CustomEmbed` class that adds the following functionality to Embeds:
 
-* Field emulation `CustomEmbed.add_field`
 * Support for the `color` kwarg
+* Field emulation `CustomEmbed.add_field`
 * Footer emulation `CustomEmbed.set_footer`
 * Copy function `CustomEmbed.copy`
 * Dictionary conversion `CustomEmbed.to_dict`
