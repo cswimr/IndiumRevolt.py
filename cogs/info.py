@@ -8,13 +8,13 @@ class Info(commands.Cog):
         self.client = client
 
     async def upload_file(self, asset: revolt.Asset):
-        dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(dir, 'tempfile.png')
+        temp_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(temp_dir, 'tempfile.png')
         with open(file_path, 'wb') as file:
             await asset.save(file)
-        id = await self.client.upload_file(file=file_path, tag="attachments")
+        avatar_id = await self.client.upload_file(file=file_path, tag="attachments")
         os.remove(file_path)
-        return id
+        return avatar_id
 
     @commands.command()
     async def temporarycmd(self, ctx: commands.Context):
@@ -81,7 +81,6 @@ class Info(commands.Cog):
             if user.display_name is not None:
                 embeds[0].title += f" - {user.display_name}"
             embeds[0].set_footer(f"User ID: {user.id} - User is not in this server!")
-            pass
         if embeds[0].colour is None:
             embeds[0].colour = "#5d82d1"
         await ctx.message.reply(embeds=embeds)
