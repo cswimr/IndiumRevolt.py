@@ -4,6 +4,7 @@ import mysql.connector
 import revolt
 from dotenv import load_dotenv
 from pytimeparse2 import disable_dateutil, parse
+from revolt import utils
 from revolt.ext import commands
 from utils.embed import CustomEmbed
 
@@ -15,6 +16,7 @@ db_host = os.getenv('DB_HOST')
 db_user = os.getenv('DB_USER')
 db_password = os.getenv('DB_PASSWORD')
 db = os.getenv('DB')
+required_role_id = os.getenv('REQUIRED_ROLE_ID')
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -39,6 +41,10 @@ class Moderation(commands.Cog):
 
     @commands.command(name="timeout", aliases=["mute"])
     async def timeout(self, ctx: commands.Context, target: commands.MemberConverter, duration: str, *, reason: str):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
         try:
             parsed_time = parse(sval=duration, as_timedelta=True, raise_exception=True)
         except ValueError:
@@ -58,6 +64,10 @@ class Moderation(commands.Cog):
 
     @commands.command(name="untimeout", aliases=["unmute"])
     async def untimeout(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
         if not reason:
             await ctx.message.reply("Please include a reason!")
             return
@@ -73,6 +83,10 @@ class Moderation(commands.Cog):
 
     @commands.command()
     async def warn(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
         if not reason:
             await ctx.message.reply("Please include a reason!")
             return
@@ -86,6 +100,10 @@ class Moderation(commands.Cog):
 
     @commands.command()
     async def kick(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
         if not reason:
             await ctx.message.reply("Please include a reason!")
             return
@@ -99,6 +117,10 @@ class Moderation(commands.Cog):
 
     @commands.command()
     async def ban(self, ctx: commands.Context, target: commands.MemberConverter, *, reason: str):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
         if not reason:
             await ctx.message.reply("Please include a reason!")
             return
@@ -116,6 +138,10 @@ class Moderation(commands.Cog):
 
     @commands.command()
     async def unban(self, ctx: commands.Context, target: commands.UserConverter, *, reason: str):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
         if ctx.channel.channel_type is not revolt.ChannelType.text_channel:
             await ctx.message.reply("You cannot use moderation commands in direct messages!")
             return
@@ -139,6 +165,10 @@ class Moderation(commands.Cog):
 
     @commands.command(aliases=["tdc"])
     async def timedeltaconvert(self, ctx, *, duration):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
         if not duration:
             embeds = [CustomEmbed(description=f"## timedeltaconvert\nThis command converts a duration to a `timedelta` Python object.\n### Example Usage\n`{prefix}timedeltaconvert 1 day 15hr 82 minutes 52 s`\n### Output\n`1 day, 16:22:52`", color="#5d82d1")]
             await ctx.message.reply(embeds=embeds)
