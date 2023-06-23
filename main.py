@@ -44,8 +44,8 @@ class Client(commands.CommandsClient):
         print(f'Ping {int(ping)}ms')
 
     @commands.command()
-    async def avatar(self, ctx: commands.Context, target: revolt.User):
-        # This command retrieves a user's avatar. CURRENTLY BROKEN - NOTE: Move to cog
+    async def avatar(self, ctx: commands.Context, target: commands.UserConverter):
+        # This command retrieves a user's avatar. -  NOTE: Move to cog
         if not isinstance(target, revolt.User):
             await ctx.message.reply("Please provide a user argument!")
             return
