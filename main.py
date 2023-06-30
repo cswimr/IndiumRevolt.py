@@ -33,14 +33,15 @@ class Client(commands.CommandsClient):
             embed = [CustomEmbed(description=f"## Message Deleted in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Content:** {message.content}", colour="#5d82d1"), CustomEmbed(description=f"## Message Deleted in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Content:** {truncated_content}\n\n*Message content is over the character limit.*", colour="#5d82d1")]
             embed[0].set_footer(f"Message ID: {message.id}")
             embed[1].set_footer(f"Message ID: {message.id}")
+            channel = self.get_channel(message_logging_channel)
             try:
                 try:
-                    await self.get_channel(message_logging_channel).send(embed=embed[0])
+                    await channel.send(embed=embed[0])
                 except LookupError:
                     print("Message logging channel not found for server ID: " + message.server.id)
             except(revolt.errors.HTTPError):
                 try:
-                    await self.get_channel(message_logging_channel).send(embed=embed[1])
+                    await channel.send(embed=embed[1])
                 except LookupError:
                     print("Message logging channel not found for server ID: " + message.server.id)
         else:
