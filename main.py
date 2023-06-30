@@ -27,21 +27,20 @@ class Client(commands.CommandsClient):
 
     async def on_message_delete(self, message: revolt.Message):
         if isinstance(message.author, revolt.Member):
-            if message.author.bot == True:
+            if message.author.bot is True:
                 return
-            embed = [CustomEmbed(description=f"## Message Deleted in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Content:** {message.content}", colour="#5d82d1")]
+            truncated_content = message.content[:1500] + "..."
+            embed = [CustomEmbed(description=f"## Message Deleted in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Content:** {message.content}", colour="#5d82d1"), CustomEmbed(description=f"## Message Deleted in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Content:** {truncated_content}\n\n*Message content is over the character limit.*", colour="#5d82d1")]
             embed[0].set_footer(f"Message ID: {message.id}")
+            embed[1].set_footer(f"Message ID: {message.id}")
             try:
                 try:
-                    await self.get_channel(message_logging_channel).send(embeds=embed)
+                    await self.get_channel(message_logging_channel).send(embed=embed[0])
                 except LookupError:
                     print("Message logging channel not found for server ID: " + message.server.id)
             except(revolt.errors.HTTPError):
-                truncated_content = message.content[:1500] + "..."
-                embed = [CustomEmbed(description=f"## Message Deleted in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Content:** {truncated_content}\n\n*Message content is over the character limit.*", colour="#5d82d1")]
-                embed[0].set_footer(f"Message ID: {message.id}")
                 try:
-                    await self.get_channel(message_logging_channel).send(embeds=embed)
+                    await self.get_channel(message_logging_channel).send(embed=embed[1])
                 except LookupError:
                     print("Message logging channel not found for server ID: " + message.server.id)
         else:
