@@ -7,7 +7,7 @@ class Info(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def upload_to_revolt(self, asset: revolt.Asset):
+    async def upload_to_revolt(self, ctx: commands.Context, asset: revolt.Asset):
         """Uploads an asset to Revolt and returns the asset ID."""
         temp_dir = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(temp_dir, 'latest_avatar.png')
@@ -15,25 +15,12 @@ class Info(commands.Cog):
             await asset.save(file)
         with open(file_path, 'rb') as file:
             upload_file = revolt.File(file=file_path)
-            avatar_id = await self.client.upload_file(file=upload_file, tag="attachments")
-        return avatar_id
+            avatar_id = await ctx.client.upload_file(file=upload_file, tag="attachments")
+        return avatar_id.id
 
-    @commands.command()
-    async def temporarycmd(self, ctx: commands.Context):
-        tag = str(await Info.upload_to_revolt(self, ctx.author.avatar))
-        await ctx.message.reply(tag)
-
-    @commands.command()
-    async def color(self, ctx: commands.Context):
-        user = ctx.author
-        roles=list(reversed(user.roles))
-        highest_role_color = None
-        for role in roles:
-            if role.colour is not None:
-                highest_role_color = role.colour
-                break
-        if highest_role_color:
-            await ctx.message.reply(highest_role_color)
+    commands.command()
+    async def serverinfo(self, ctx: commands.Context):
+        await ctx.message.reply("Command executed!")
 
     class CustomError(Exception):
         pass
@@ -41,13 +28,13 @@ class Info(commands.Cog):
     @commands.command()
     async def channelinfo(self, ctx: commands.Context, channel: commands.ChannelConverter, permissions: commands.BoolConverter = False):
         if str(channel.channel_type) != "ChannelType.text_channel" and str(channel.channel_type) != "ChannelType.voice_channel":
-            raise Info.CustomError
+            raise self.CustomError
         await ctx.message.reply(f"Command executed!\n{permissions}")
 
     @channelinfo.error
     async def channelinfo_error_handling(self, ctx: commands.Context, error: revolt.errors):
         """Handles errors from the channelinfo command."""
-        if isinstance(error, Info.CustomError):
+        if isinstance(error, self.CustomError):
             await ctx.message.reply("Please provide a valid text channel.\nDirect Messages are not currently supported.")
         elif isinstance(error, LookupError):
             await ctx.message.reply("Please provide a text channel I can access.")
@@ -59,7 +46,7 @@ class Info(commands.Cog):
         """Displays information about a user."""
         if user is None:
             user = ctx.author
-        avatar_id = await Info.upload_to_revolt(self, user.avatar)
+        avatar_id = await self.upload_to_revolt(ctx, user.avatar)
         user_profile = await user.fetch_profile()
         presencedict = {
             "PresenceType.online": "🟢",
@@ -80,7 +67,9 @@ class Info(commands.Cog):
             else:
                 status_text = "Offline"
             status_presence = user.status.presence
-        embeds = [CustomEmbed(title=f"{user.original_name}#{user.discriminator}", description=f"### Status\n{presencedict[str(status_presence)]} - {status_text}\n### Profile\n{user_profile[0]}", media=avatar_id)]
+        embeds = [CustomEmbed(title=f"{user.original_name}#{user.discriminator}", description=f"### Status\n{presencedict[str(status_presence)]} - {status_text}", media=avatar_id)]
+        if user_profile[0] is not None:
+            embeds[0].add_field(name="Profile", value=user_profile[0])
         try:
             if not isinstance(user, revolt.Member):
                 member = user.to_member(ctx.server)

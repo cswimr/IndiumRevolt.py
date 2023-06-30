@@ -2,7 +2,6 @@ import os
 import dotenv
 import mysql.connector
 import revolt
-from dotenv import load_dotenv
 from pytimeparse2 import disable_dateutil, parse
 from revolt import utils
 from revolt.ext import commands
@@ -10,7 +9,7 @@ from utils.embed import CustomEmbed
 
 # This code reads the variables set in the bot's '.env' file.
 env = dotenv.find_dotenv()
-load_dotenv(env)
+dotenv.load_dotenv(env)
 prefix = os.getenv('PREFIX')
 db_host = os.getenv('DB_HOST')
 db_user = os.getenv('DB_USER')
@@ -27,7 +26,7 @@ class Moderation(commands.Cog):
         connection = mysql.connector.connect(host=db_host,user=db_user,password=db_password,database=db)
         return connection
 
-    def mysql_log(self, ctx: commands.Context,moderation_type, target_id, duration, reason):
+    def mysql_log(self, ctx: commands.Context, moderation_type, target_id, duration, reason):
         database = Moderation.mysql_connect(self)
         cursor = database.cursor()
         cursor.execute(f"SELECT moderation_id FROM `{ctx.server.id.lower()}_moderation` ORDER BY moderation_id DESC LIMIT 1")
