@@ -64,7 +64,27 @@ class Info(commands.Cog):
 
     @commands.command()
     async def serverinfo(self, ctx: commands.Context):
-        await ctx.message.reply("Command executed!")
+        """Displays information about a server."""
+        embed = [CustomEmbed(description=f"## {ctx.server.name}\n### Server ID\n{ctx.server.id}")]
+        embed[0].add_field(name="Owner", value=f"{ctx.server.owner.mention} ({ctx.server.owner.id})")
+        if ctx.server.description:
+            embed[0].add_field(name="Description", value=ctx.server.description)
+        embed[0].add_field(name="Members", value=len(ctx.server.members))
+        if ctx.server.roles:
+            embed[0].add_field(name="Roles", value=len(ctx.server.roles))
+        if ctx.server.categories:
+            embed[0].add_field(name="Categories", value=len(ctx.server.categories))
+        embed[0].add_field(name="Channels", value=len(ctx.server.channels))
+        if ctx.server.emojis:
+            embed[0].add_field(name="Emojis", value=len(ctx.server.emojis))
+        if ctx.server.icon:
+            icon_id = await self.upload_to_revolt(ctx, ctx.server.icon, True)
+            embed[0].add_field(name="Icon")
+            embed[0].media = icon_id[0]
+            embed[0].colour = icon_id[1]
+        else:
+            embed[0].colour = "#5d82d1"
+        await ctx.message.reply(embeds=embed)
 
     @commands.command()
     async def userinfo(self, ctx: commands.Context, user: commands.UserConverter = None):
