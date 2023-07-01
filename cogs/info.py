@@ -86,6 +86,20 @@ class Info(commands.Cog):
             embed[0].colour = "#5d82d1"
         await ctx.message.reply(embeds=embed)
 
+    # This is commented out due to an issue with the Revolt.py library.
+    # @commands.command()
+    # async def roleinfo(self, ctx: commands.Context, role: revolt.Role):
+    #     """Displays information about a role."""
+    #     embed = [CustomEmbed(description=f"## {role.name}\n### Role ID\n{role.id}")]
+    #     if role.color:
+    #         embed[0].colour = role.colour
+    #     else:
+    #         embed[0].colour = "#5d82d1"
+    #     embed[0].add_field(name="Hoisted", value=role.hoist)
+    #     embed[0].add_field(name="Rank", value=role.rank)
+    #     embed[0].add_field(name="Permissions", value=role.server_permissions)
+    #     await ctx.message.reply(embeds=embed)
+
     @commands.command()
     async def userinfo(self, ctx: commands.Context, user: commands.UserConverter = None):
         """Displays information about a user."""
