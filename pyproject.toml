@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "indiumrevolt-py"
+version = "0.1.0"
+description = "IndiumRevolt aims to recreate functionality of other popular bots from Discord, but on Revolt."
+authors = ["SeaswimmerTheFsh"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "indiumrevolt"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+"revolt.py" = { git = "https://github.com/revoltchat/revolt.py.git", branch = "master" }
+python-dotenv = "^1.0.0"
+mysql-connector-python = "^8.0.33"
+pytimeparse2 = "^1.7.1"
+colorthief = "^0.2.1"
+
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
