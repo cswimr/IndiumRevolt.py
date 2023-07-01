@@ -34,6 +34,15 @@ class Info(commands.Cog):
         pass
 
     @commands.command()
+    async def avatar(self, ctx: commands.Context, target: commands.UserConverter):
+        """This command retrieves a user's avatar. -  NOTE: Move to cog"""
+        if not isinstance(target, revolt.User):
+            await ctx.message.reply("Please provide a user argument!")
+            return
+        avatar = target.avatar.url
+        await ctx.message.reply(f"{avatar}")
+
+    @commands.command()
     async def channelinfo(self, ctx: commands.Context, channel: commands.ChannelConverter):
         """Displays information about a channel."""
         if str(channel.channel_type) != "ChannelType.text_channel" and str(channel.channel_type) != "ChannelType.voice_channel":

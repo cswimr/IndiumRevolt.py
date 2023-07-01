@@ -26,6 +26,10 @@ class Client(commands.CommandsClient):
             return prefix
         return input
 
+    async def on_server_join(self, server: revolt.Server):
+        print(f"Joined server: {server.name} ({server.id})")
+        Moderation.create_server_table(self, server.id)
+
     async def on_message_delete(self, message: revolt.Message):
         if isinstance(message.author, revolt.Member):
             if message.author.bot is True:
@@ -73,15 +77,6 @@ class Client(commands.CommandsClient):
         embeds = [CustomEmbed(title="🏓 Pong!", description=f"`\n{int(ping)} ms`", colour="#5d82d1")]
         await msg.edit(content=" ", embeds=embeds)
         print(f'Ping {int(ping)}ms')
-
-    @commands.command()
-    async def avatar(self, ctx: commands.Context, target: commands.UserConverter):
-        """This command retrieves a user's avatar. -  NOTE: Move to cog"""
-        if not isinstance(target, revolt.User):
-            await ctx.message.reply("Please provide a user argument!")
-            return
-        avatar = target.avatar.url
-        await ctx.message.reply(f"{avatar}")
 
     async def prefix_change(self, message: revolt.Message, new_prefix: str, silent: bool | None = False):
         dotenv.set_key(env, 'PREFIX', new_prefix)

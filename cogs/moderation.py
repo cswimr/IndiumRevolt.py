@@ -28,8 +28,42 @@ class Moderation(commands.Cog):
         connection = mysql.connector.connect(host=db_host,user=db_user,password=db_password,database=db)
         return connection
 
+    def create_server_table(self, server_id):
+        database = Moderation.mysql_connect(self)
+        cursor = database.cursor()
+        try:
+            cursor.execute(f"SELECT * FROM `{server_id.lower()}_moderation`")
+        except mysql.connector.errors.ProgrammingError:
+            query = f"""
+                CREATE TABLE `{server_id.lower()}_moderation` (
+                    moderation_id INT UNIQUE PRIMARY KEY NOT NULL,
+                    timestamp INT NOT NULL,
+                    moderation_type LONGTEXT NOT NULL,
+                    target_id LONGTEXT NOT NULL,
+                    moderator_id LONGTEXT NOT NULL,
+                    duration LONGTEXT,
+                    end_timestamp INT,
+                    reason LONGTEXT,
+                    resolved BOOL NOT NULL,
+                    resolve_reason LONGTEXT
+                )
+            """
+            cursor.execute(query)
+            insert_query = f"""
+                INSERT INTO `{server_id.lower()}_moderation`
+                (moderation_id, timestamp, moderation_type, target_id, moderator_id, duration, end_timestamp, reason, resolved, resolve_reason)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            insert_values = (0, 0, "NULL", 0, 0, "NULL", 0, "NULL", 0, "NULL")
+            cursor.execute(insert_query, insert_values)
+            database.commit()
+            database.close()
+            print(f"MySQL Table Created!\n{server_id.lower()}_moderation")
+        else:
+            database.close()
+            return
+
     def mysql_log(self, ctx: commands.Context, moderation_type, target_id, duration, reason):
-        moderator_id = ctx.author.id
         timestamp = int(time.time())
         if duration != "NULL":
             end_timedelta = datetime.fromtimestamp(timestamp) + duration
@@ -41,11 +75,20 @@ class Moderation(commands.Cog):
         cursor.execute(f"SELECT moderation_id FROM `{ctx.server.id.lower()}_moderation` ORDER BY moderation_id DESC LIMIT 1")
         moderation_id = cursor.fetchone()[0] + 1
         sql = f"INSERT INTO `{ctx.server.id.lower()}_moderation` (moderation_id, timestamp, moderation_type, target_id, moderator_id, duration, end_timestamp, reason, resolved, resolve_reason) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (moderation_id, timestamp, moderation_type, target_id, moderator_id, duration, end_timestamp, f"{reason}", 0, "NULL")
+        val = (moderation_id, timestamp, moderation_type, target_id, ctx.author.id, duration, end_timestamp, f"{reason}", 0, "NULL")
         cursor.execute(sql, val)
         database.commit()
         database.close()
-        print(f"MySQL Row Inserted!\n{moderation_id}, {timestamp}, {moderation_type}, {target_id}, {moderator_id}, {duration}, {end_timestamp} {reason}, 0, NULL")
+        print(f"MySQL Row Inserted!\n{moderation_id}, {timestamp}, {moderation_type}, {target_id}, {ctx.author.id}, {duration}, {end_timestamp} {reason}, 0, NULL")
+
+    @commands.command()
+    async def dbcreate(self, ctx: commands.Context):
+        required_role = utils.get(ctx.server.roles, id=required_role_id)
+        if required_role not in ctx.author.roles:
+            await ctx.message.reply("You do not have permission to use this command!")
+            return
+        self.create_server_table(server_id=ctx.server.id)
+        await ctx.message.reply("MySQL Table Created!")
 
     @commands.command(name="timeout", aliases=["mute"])
     async def timeout(self, ctx: commands.Context, target: commands.MemberConverter, duration: str, *, reason: str):
