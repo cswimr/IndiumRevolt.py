@@ -17,6 +17,7 @@ token = os.getenv('TOKEN')
 api_url = os.getenv('API_URL')
 prefix = os.getenv('PREFIX')
 message_logging_channel = os.getenv('MESSAGE_LOGGING_CHANNEL')
+app_url = os.getenv('APP_URL')
 
 class Client(commands.CommandsClient):
     """This class contains all of the commands/methods required for core functionality. Everything else will be relegated to cogs (eventually)."""
@@ -51,7 +52,8 @@ class Client(commands.CommandsClient):
         if isinstance(message.author, revolt.Member):
             if message.author.bot is True:
                 return
-            embeds = [CustomEmbed(description=f"## Message Edited in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Message ID:** {message.id}", colour="#5d82d1"), CustomEmbed(title="Old Content", description=before.content, colour="#5d82d1"), CustomEmbed(title="New Content", description=message.content, colour="#5d82d1")]
+            message_link = f"{app_url}/server/{message.server.id}/channel/{message.channel.id}/message/{message.id}"
+            embeds = [CustomEmbed(description=f"## Message Edited in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Message ID:** [{message.id}]({message_link})", colour="#5d82d1"), CustomEmbed(title="Old Content", description=before.content, colour="#5d82d1"), CustomEmbed(title="New Content", description=message.content, colour="#5d82d1")]
             channel = self.get_channel(message_logging_channel)
             try:
                 await channel.send(embed=embeds[0])
