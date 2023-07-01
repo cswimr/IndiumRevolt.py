@@ -10,8 +10,8 @@ class Info(commands.Cog):
         self.client = client
 
     @staticmethod
-    def rgb_to_hex(r, g, b):
-        return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+    def rgb_to_hex(r, g, b): # pylint: disable=invalid-name
+        return '#{:02x}{:02x}{:02x}'.format(r, g, b) # pylint: disable=consider-using-f-string
 
     async def upload_to_revolt(self, ctx: commands.Context, asset: revolt.Asset, color: bool = False):
         """Uploads an asset to Revolt and returns the asset ID."""
@@ -34,7 +34,7 @@ class Info(commands.Cog):
         pass
 
     @commands.command()
-    async def channelinfo(self, ctx: commands.Context, channel: commands.ChannelConverter, permissions: commands.BoolConverter = False):
+    async def channelinfo(self, ctx: commands.Context, channel: commands.ChannelConverter):
         """Displays information about a channel."""
         if str(channel.channel_type) != "ChannelType.text_channel" and str(channel.channel_type) != "ChannelType.voice_channel":
             raise self.CustomError
