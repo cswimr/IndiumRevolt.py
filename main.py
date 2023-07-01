@@ -47,11 +47,20 @@ class Client(commands.CommandsClient):
         else:
             print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Deleted from Direct Messages\n   Message ID: {message.id}")
 
-    # async def on_message_update(self, message: revolt.Message):
-    #     if isinstance(message.author, revolt.Member):
-    #         print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent from {message.server.name} ({message.server.id})")
-    #     else:
-    #         print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent in Direct Messages")
+    async def on_message_update(self, before: revolt.Message, message: revolt.Message):
+        if isinstance(message.author, revolt.Member):
+            if message.author.bot is True:
+                return
+            embeds = [CustomEmbed(description=f"## Message Edited in {message.channel.mention}\n**Author:** {message.author.name}#{message.author.discriminator} ({message.author.id})\n**Message ID:** {message.id}", colour="#5d82d1"), CustomEmbed(title="Old Content", description=before.content, colour="#5d82d1"), CustomEmbed(title="New Content", description=message.content, colour="#5d82d1")]
+            channel = self.get_channel(message_logging_channel)
+            try:
+                await channel.send(embed=embeds[0])
+                await channel.send(embed=embeds[1])
+                await channel.send(embed=embeds[2])
+            except LookupError:
+                print("Message logging channel not found for server ID: " + message.server.id)
+        else:
+            print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {before.content}\n ⤷ Edited in Direct Messages\n   New Content: {message.content}")
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
