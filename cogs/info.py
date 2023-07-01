@@ -1,35 +1,56 @@
 import os
+import re
 import revolt
 from revolt.ext import commands
+from colorthief import ColorThief
 from utils.embed import CustomEmbed
 
 class Info(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def upload_to_revolt(self, ctx: commands.Context, asset: revolt.Asset):
+    @staticmethod
+    def rgb_to_hex(r, g, b):
+        return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+    async def upload_to_revolt(self, ctx: commands.Context, asset: revolt.Asset, color: bool = False):
         """Uploads an asset to Revolt and returns the asset ID."""
         temp_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(temp_dir, 'latest_avatar.png')
+        file_path = os.path.join(temp_dir, 'tempfile.png')
         with open(file_path, 'wb') as file:
             await asset.save(file)
+            if color is True:
+                color_thief = ColorThief(file_path)
+                dominant_color = list(color_thief.get_color(quality=1))
+                hex_color = self.rgb_to_hex(dominant_color[0], dominant_color[1], dominant_color[2])
+            else:
+                hex_color = None
         with open(file_path, 'rb') as file:
-            upload_file = revolt.File(file=file_path)
+            upload_file = revolt.File(file=file_path, filename="indium.png")
             avatar_id = await ctx.client.upload_file(file=upload_file, tag="attachments")
-        return avatar_id.id
-
-    commands.command()
-    async def serverinfo(self, ctx: commands.Context):
-        await ctx.message.reply("Command executed!")
+        return avatar_id.id, hex_color
 
     class CustomError(Exception):
         pass
 
     @commands.command()
     async def channelinfo(self, ctx: commands.Context, channel: commands.ChannelConverter, permissions: commands.BoolConverter = False):
+        """Displays information about a channel."""
         if str(channel.channel_type) != "ChannelType.text_channel" and str(channel.channel_type) != "ChannelType.voice_channel":
             raise self.CustomError
-        await ctx.message.reply(f"Command executed!\n{permissions}")
+        # I have no idea how this works, thanks ChatGPT! :)
+        formatted_channel_type = re.sub(r"(?<=\w)([A-Z])", r" \1", ' '.join(word.capitalize() for word in str(channel.channel_type).split('.')[1:])).replace("_", " ").title()
+        embed = [CustomEmbed(description=f"## {channel.mention}\n### Channel Type\n{formatted_channel_type}\n### Channel ID\n{channel.id}")]
+        if channel.description:
+            embed[0].add_field(name="Description", value=channel.description)
+        if channel.icon:
+            icon_id = await self.upload_to_revolt(ctx, channel.icon, True)
+            embed[0].add_field(name="Icon")
+            embed[0].media = icon_id[0]
+            embed[0].colour = icon_id[1]
+        else:
+            embed[0].colour = "#5d82d1"
+        await ctx.message.reply(embeds=embed)
 
     @channelinfo.error
     async def channelinfo_error_handling(self, ctx: commands.Context, error: revolt.errors):
@@ -42,11 +63,15 @@ class Info(commands.Cog):
             raise error
 
     @commands.command()
+    async def serverinfo(self, ctx: commands.Context):
+        await ctx.message.reply("Command executed!")
+
+    @commands.command()
     async def userinfo(self, ctx: commands.Context, user: commands.UserConverter = None):
         """Displays information about a user."""
         if user is None:
             user = ctx.author
-        avatar_id = await self.upload_to_revolt(ctx, user.avatar)
+        avatar_id = await self.upload_to_revolt(ctx, user.avatar, True)
         user_profile = await user.fetch_profile()
         presencedict = {
             "PresenceType.online": "🟢",
@@ -67,7 +92,7 @@ class Info(commands.Cog):
             else:
                 status_text = "Offline"
             status_presence = user.status.presence
-        embeds = [CustomEmbed(title=f"{user.original_name}#{user.discriminator}", description=f"### Status\n{presencedict[str(status_presence)]} - {status_text}", media=avatar_id)]
+        embeds = [CustomEmbed(title=f"{user.original_name}#{user.discriminator}", description=f"### Status\n{presencedict[str(status_presence)]} - {status_text}", media=avatar_id[0])]
         if user_profile[0] is not None:
             embeds[0].add_field(name="Profile", value=user_profile[0])
         try:
@@ -90,6 +115,8 @@ class Info(commands.Cog):
                     break
             if highest_role_color:
                 embeds[0].colour = highest_role_color
+            elif avatar_id[1] is not None:
+                embeds[0].colour = avatar_id[1]
             embeds[0].set_footer(f"User ID: {user.id}")
         except LookupError:
             if user.display_name is not None:

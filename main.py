@@ -47,22 +47,20 @@ class Client(commands.CommandsClient):
         else:
             print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Deleted from Direct Messages\n   Message ID: {message.id}")
 
-    async def on_message_update(self, message: revolt.Message):
-        if isinstance(message.author, revolt.Member):
-            print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent from {message.server.name} ({message.server.id})")
-        else:
-            print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent in Direct Messages")
+    # async def on_message_update(self, message: revolt.Message):
+    #     if isinstance(message.author, revolt.Member):
+    #         print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent from {message.server.name} ({message.server.id})")
+    #     else:
+    #         print(f"{message.author.name}#{message.author.discriminator} ({message.author.id}): {message.content}\n ⤷ Sent in Direct Messages")
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
         """This command checks the bot's latency."""
         before = time.monotonic()
-        await ctx.message.reply("🏓")
-        mrm_list = await ctx.channel.history(limit=1)
-        mrm = mrm_list[0]
+        msg = await ctx.message.reply("🏓")
         ping = (time.monotonic() - before) * 1000
         embeds = [CustomEmbed(title="🏓 Pong!", description=f"`\n{int(ping)} ms`", colour="#5d82d1")]
-        await mrm.edit(content=" ", embeds=embeds)
+        await msg.edit(content=" ", embeds=embeds)
         print(f'Ping {int(ping)}ms')
 
     @commands.command()
