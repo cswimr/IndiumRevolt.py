@@ -10,8 +10,8 @@ class Info(commands.Cog):
         self.client = client
 
     @staticmethod
-    def rgb_to_hex(R, G, B):
-        return f'#{R:02x}{G:02x}{B:02x}'
+    def rgb_to_hex(r, g, b):
+        return f'#{r:02x}{g:02x}{b:02x}'
 
     async def upload_to_revolt(self, ctx: commands.Context, asset: revolt.Asset, color: bool = False):
         """Uploads an asset to Revolt and returns the asset ID."""
