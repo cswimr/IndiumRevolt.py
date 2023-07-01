@@ -1,7 +1,9 @@
 import os
+import time
 import dotenv
 import mysql.connector
 import revolt
+from datetime import datetime
 from pytimeparse2 import disable_dateutil, parse
 from revolt import utils
 from revolt.ext import commands
@@ -27,16 +29,23 @@ class Moderation(commands.Cog):
         return connection
 
     def mysql_log(self, ctx: commands.Context, moderation_type, target_id, duration, reason):
+        moderator_id = ctx.author.id
+        timestamp = int(time.time())
+        if duration != "NULL":
+            end_timedelta = datetime.fromtimestamp(timestamp) + duration
+            end_timestamp = int(end_timedelta.timestamp())
+        else:
+            end_timestamp = "NULL"
         database = Moderation.mysql_connect(self)
         cursor = database.cursor()
         cursor.execute(f"SELECT moderation_id FROM `{ctx.server.id.lower()}_moderation` ORDER BY moderation_id DESC LIMIT 1")
         moderation_id = cursor.fetchone()[0] + 1
-        sql = f"INSERT INTO `{ctx.server.id.lower()}_moderation` (moderation_id, moderation_type, target_id, duration, reason, resolved) VALUES (%s, %s, %s, %s, %s, %s)"
-        val = (moderation_id, moderation_type, target_id, duration, f"{reason}", 0)
+        sql = f"INSERT INTO `{ctx.server.id.lower()}_moderation` (moderation_id, timestamp, moderation_type, target_id, moderator_id, duration, end_timestamp, reason, resolved, resolve_reason) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        val = (moderation_id, timestamp, moderation_type, target_id, moderator_id, duration, end_timestamp, f"{reason}", 0, "NULL")
         cursor.execute(sql, val)
         database.commit()
         database.close()
-        print(f"MySQL Row Inserted!\n{moderation_id}, {moderation_type}, {target_id}, {duration}, {reason}, 0")
+        print(f"MySQL Row Inserted!\n{moderation_id}, {timestamp}, {moderation_type}, {target_id}, {moderator_id}, {duration}, {end_timestamp} {reason}, 0, NULL")
 
     @commands.command(name="timeout", aliases=["mute"])
     async def timeout(self, ctx: commands.Context, target: commands.MemberConverter, duration: str, *, reason: str):
