@@ -81,15 +81,6 @@ class Moderation(commands.Cog):
         database.close()
         print(f"MySQL Row Inserted!\n{moderation_id}, {timestamp}, {moderation_type}, {target_id}, {ctx.author.id}, {duration}, {end_timestamp} {reason}, 0, NULL")
 
-    @commands.command()
-    async def dbcreate(self, ctx: commands.Context):
-        required_role = utils.get(ctx.server.roles, id=required_role_id)
-        if required_role not in ctx.author.roles:
-            await ctx.message.reply("You do not have permission to use this command!")
-            return
-        self.create_server_table(server_id=ctx.server.id)
-        await ctx.message.reply("MySQL Table Created!")
-
     @commands.command(name="timeout", aliases=["mute"])
     async def timeout(self, ctx: commands.Context, target: commands.MemberConverter, duration: str, *, reason: str):
         required_role = utils.get(ctx.server.roles, id=required_role_id)
