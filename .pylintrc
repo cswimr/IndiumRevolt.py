@@ -6,4 +6,5 @@
     line-too-long,
     too-many-arguments,
     too-many-branches,
-    superfluous-parens
+    superfluous-parens,
+    invalid-name
