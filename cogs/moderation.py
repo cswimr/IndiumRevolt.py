@@ -106,6 +106,11 @@ class Moderation(commands.Cog):
         if not reason:
             await ctx.message.reply("Please include a reason!")
             return
+        try:
+            await target.kick()
+        except revolt.errors.HTTPError:
+            await ctx.message.reply("User is not in the server!")
+            return
         response = await ctx.message.reply(f"{target.mention} has been kicked!\n**Reason** - `{reason}`")
         try:
             embeds = [CustomEmbed(title="Warned", description=f"You have been kicked from {ctx.server.name}!\n### Reason\n`{reason}`", color="#5d82d1")]
